@@ -20,7 +20,7 @@ android {
   buildToolsVersion '26.0.1'
 
   defaultConfig {
-    applicationId 'gaster-wingdings'
+    applicationId 'com.mooph.gasterWingdings'
     targetSdkVersion 25
     versionCode 1
     versionName '0.1.0'
@@ -100,7 +100,6 @@ preBuild.dependsOn exponentPrebuildStep
 
 
 dependencies {
-    compile project(':react-native-vector-icons')
   compile fileTree(dir: 'libs', include: ['*.jar'])
 
   compile 'com.android.support:multidex:1.0.1'
