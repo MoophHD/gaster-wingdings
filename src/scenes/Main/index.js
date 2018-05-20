@@ -49,8 +49,7 @@ class Main extends Component {
         
         this.state = {
             eng: "",
-            blurId: 0,
-            isInputEng: true
+            blurId: 0
         }
         
         this.handleChange = this.handleChange.bind(this);
@@ -90,36 +89,21 @@ class Main extends Component {
     handleOutSideClick() {
         this.setState(() => ({ blurId: this.state.blurId + 1 }))
     }
-    
-    swap() {
-        this.setState(() => ({ isInputEng: !this.state.isInputEng }))
-    }
-    
+
     render() {
-        const { eng, blurId, isInputEng } = this.state;
+        const { eng, blurId } = this.state;
         return(
            <Wrapper>
                 <AppHeader />
                 <TouchableWithoutFeedback onPress={() => this.handleOutSideClick()}>
                     <TranslateWrapper>
                         <UserInput
-                            isInputEng={isInputEng}
                             blurId={blurId}
                             onBlur={this.handleBlur}
                             value={eng}
                             onChange={this.handleChange}/>
                             
-                        <TouchableOpacity onPress={() => this.swap()}>
-                            <View style={s.swapBtn}>
-                                <MaterialIcons 
-                                    size={40}
-                                    color="white"
-                                    name="swap-vert" />
-                            </View>
-                        </TouchableOpacity>
-                        
-                        <Output 
-                            isInputEng={isInputEng}
+                        <Output
                             blurId={blurId}
                             value={eng} />
                     </TranslateWrapper>

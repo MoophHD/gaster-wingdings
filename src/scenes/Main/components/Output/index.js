@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import MyText from "components/MyText";
 import PropTypes from 'prop-types';
 import { black } from 'config/colors';
-import { eW, wE } from 'assets/legend/legend';
+import { eW, wE, cyrillicLatin } from 'assets/legend/legend';
 import PanWrapper from "components/PanWrapper";
 import adjustFontSize from "assets/adjustFontSize";
 const pureFontSize = 33;
@@ -22,24 +22,25 @@ import { mainCl } from 'config/colors';
 const OutPutWrapper = styled(View)`
     height: 260px;
 `
-
 const MyCard = styled(Card)`position: relative`
-
-
-
-
 const TextWrapper = styled(View)`
     padding: 15px 0;
     flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    alignItems: center;
 `
-//  
-const engSize = adjustFontSize( 15 );
+const scriptType = {
+    eng: "eng",
+    wing: "wing"
+}
+const engSize = adjustFontSize( 16 );
 const wingSize = adjustFontSize( 32 );
-const Translation = styled(TextInput)`
-    font-size: ${props => ( (props.isEng ? engSize : wingSize )* (props.big ? .7 : 1 ))}px;
+const Translation = styled(Text)`
+    font-size: ${props => (props.isEng ? engSize : wingSize ) * (props.big ? .7 :  1 )}px;
     font-family: ${props => props.isEng ? "Roboto" : "Wing_new"};
 `
-
 class OutPut extends Component {
     focusInput(isFocus) {
         if (!this.input) return;
@@ -54,6 +55,8 @@ class OutPut extends Component {
     
     copy() {
         let eVal = this.props.value;
+        if (/[а-яА-ЯЁё]/.test(eVal)) eVal = this.convertCyrillic(eVal);
+
         let translatedStr = "";
         
         // Convert hex codes into symbols if they are in the eW dictionary
@@ -75,18 +78,13 @@ class OutPut extends Component {
     handleChange(val) {
         this.props.onChange(val);
     }
-    
+   
     toEng(wVal) {
-        console.log("toEng");
-        
         let translatedStr = "";
         
         Array.prototype.forEach.call(wVal, (wLetter) => {
-            console.log(`letter ${wLetter}`)
             let decCode = wLetter.charCodeAt(0);
-            console.log(`decCode ${decCode}`)
             let hexCode = decCode.toString(16).toUpperCase();
-            console.log(`hexCode ${hexCode}`);
           if (wE.hasOwnProperty(hexCode)) {
             let letter = wE[hexCode];
             translatedStr += letter;
@@ -98,35 +96,96 @@ class OutPut extends Component {
         return translatedStr;
         
     }
+
+    convertCyrillic(val) {
+        let latinVal = "";
+        for (let i = 0; i < val.length; i++) {
+            let symbol = val[i];
+            if (cyrillicLatin.hasOwnProperty(symbol)) {
+                latinVal += cyrillicLatin[symbol];
+            } else {
+                latinVal += symbol;
+            }
+        }
+
+        val = latinVal;
+        
+        return latinVal;
+    }
     
     componentWillReceiveProps(nextProps) {
         if (nextProps.blurId != this.props.blurId) this.focusInput(false);
     }
     render() {
-        const { value, isInputEng } = this.props;
+        let { value } = this.props;
+
+        
+        if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
+        console.log(value);
+        let chuncks = [];//type: wing / eng, val
         let big = value.length > 15;
-        let isEng = !isInputEng;
+        
+        let fstCode = value[0] && value[0].charCodeAt(0).toString(16).toUpperCase();
+        let type = wE.hasOwnProperty(fstCode) ? scriptType.wing : scriptType.eng;
+        let lastTypeChangeI = 0;
+        for (let i = 0; i < value.length; i++) {
+            let symbol = value[i];
+            let code =  symbol.charCodeAt(0).toString(16).toUpperCase();
+
+            if (i == value.length - 1) {
+                chuncks.push({ value: value.slice(lastTypeChangeI, i + 1), type: type});
+                break;
+            }
+            if (type == scriptType.wing) {
+                // look for a not-wing symbol or is last
+                if (!wE.hasOwnProperty(code)) {
+                    chuncks.push({ value: value.slice(lastTypeChangeI, i), type: type })
+
+                    lastTypeChangeI = i;
+                    type = scriptType.eng;
+                }
+            } else if (type == scriptType.eng) {
+                if (wE.hasOwnProperty(code)) {
+                    chuncks.push({ value: value.slice(lastTypeChangeI, i), type: type })
+
+                    lastTypeChangeI = i;
+                    type = scriptType.wing;
+                }
+            }
+        }
         return (
             <View style={s.wrapper}> 
             
-                    <OutPutWrapper>
+                <OutPutWrapper>
                     
                 <PanWrapper onPress={() => this.focusInput(true)}>
                         <MyCard>
                         <CardItem style={s.cardItem}>
                             <TextWrapper>
-                                <Translation 
-                                    isEng={!isInputEng}
-                                    editable={false}
-                                    onChange={(val) => this.handleChange(val)}
-                                    innerRef={el => { if (el) this.input = el }}
-                                    big={big}
-                                    multiline={true}
-                                    underlineColorAndroid='rgba(0,0,0,0)'
-                                    placeholder={'Where am I?'} 
-                                    >
-                                    {isEng ? this.toEng(value) : value}
-                                </Translation>
+                                {
+                                    chuncks.map((chunck, i) => {
+                                        let { value, type } = chunck;
+                                        if (type == scriptType.wing) value = this.toEng(value);
+                                        return (
+                                            <Translation
+                                                key={`_output${i}`}
+                                                isEng={type != scriptType.eng}
+                                                editable={false}
+                                                onChange={(val) => this.handleChange(val)}
+                                                innerRef={el => { if (el) this.input = el }}
+                                                big={big}
+                                                multiline={true}
+                                                underlineColorAndroid='rgba(0,0,0,0)'
+                                                placeholder={'Where am I?'} >
+
+                                                {value}
+
+                                            </Translation>
+                                        )
+                                    })
+                            
+                                }
+                       
                             </TextWrapper>
                         </CardItem>
                         </MyCard>
@@ -148,10 +207,22 @@ class OutPut extends Component {
 OutPut.propTypes = {
     value: PropTypes.string,
     wingValue: PropTypes.string,
-    blurId: PropTypes.number,
-    isInputEng: PropTypes.bool
+    blurId: PropTypes.number
 }
 
+
+//     < Translation
+// editable = { false}
+// onChange = {(val) => this.handleChange(val)}
+// innerRef = { el => { if (el) this.input = el } }
+// big = { big }
+// multiline = { true}
+// underlineColorAndroid = 'rgba(0,0,0,0)'
+// placeholder = { 'Where am I?'} >
+
+//     { value }
+
+//                                     </Translation >
 const s = StyleSheet.create({
     wrapper: {
         padding: 10,

@@ -18,8 +18,6 @@ const engSize = adjustFontSize( 10.5 );
 const wingSize = adjustFontSize( 20 );
 
 const Myinput = styled(Input)`
-    font-family: ${props => props.isEng ? "Roboto" : "Wing_new"};
-    font-size: ${props => props.isEng ? engSize : wingSize}px;
     color: ${textClDark};
     width: ${contentW}%;
     padding: 0;
@@ -53,9 +51,6 @@ class UserInput extends Component {
         return(
             <Wrapper>
                 <Myinput 
-                    
-                    isEng={isInputEng}
-                    
                     innerRef={el => { if (el) this.input = el }}
                     multiline
                     onEndEditing={onBlur}
