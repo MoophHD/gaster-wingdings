@@ -1,9 +1,9 @@
 {
   "expo": {
     "android": {
-      "package": "com.mooph.gasterWingdings",
+      "package": "com.mooph.gasterWingdings2",
       "permissions": [],
-      "versionCode": 2
+      "versionCode": 1
     },
    "splash": {
       "image": "./src/assets/splash.png",

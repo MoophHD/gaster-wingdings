@@ -62,9 +62,11 @@ class OutPut extends Component {
         // Convert hex codes into symbols if they are in the eW dictionary
         Array.prototype.forEach.call(eVal, (eLetter) => {
           if (eW.hasOwnProperty(eLetter)) {
+              console.log(`hex ${eW[eLetter]}`);
             let code = parseInt(eW[eLetter], 16);
+            console.log(`code ${code}`)
             let symbol = String.fromCharCode(code);
-              
+            console.log(`symbol ${symbol}`);
             translatedStr += symbol;
           } else {
               translatedStr += eLetter;
@@ -85,6 +87,7 @@ class OutPut extends Component {
         Array.prototype.forEach.call(wVal, (wLetter) => {
             let decCode = wLetter.charCodeAt(0);
             let hexCode = decCode.toString(16).toUpperCase();
+            // console.log(hexCode);
           if (wE.hasOwnProperty(hexCode)) {
             let letter = wE[hexCode];
             translatedStr += letter;
@@ -119,25 +122,30 @@ class OutPut extends Component {
     render() {
         let { value } = this.props;
 
-        
+        // if cyrillic
         if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
-        console.log(value);
+
+        // console.log(value);
         let chuncks = [];//type: wing / eng, val
         let big = value.length > 15;
         
+        //push ping-pong (wing-eng) chuncks
         let fstCode = value[0] && value[0].charCodeAt(0).toString(16).toUpperCase();
+        console.log(`1st, ${fstCode}`);
         let type = wE.hasOwnProperty(fstCode) ? scriptType.wing : scriptType.eng;
         let lastTypeChangeI = 0;
         for (let i = 0; i < value.length; i++) {
             let symbol = value[i];
             let code =  symbol.charCodeAt(0).toString(16).toUpperCase();
-
+            //finish up the last
             if (i == value.length - 1) {
                 chuncks.push({ value: value.slice(lastTypeChangeI, i + 1), type: type});
                 break;
             }
+
             if (type == scriptType.wing) {
                 // look for a not-wing symbol or is last
+                console.log(`${i}th, ${code}`);
                 if (!wE.hasOwnProperty(code)) {
                     chuncks.push({ value: value.slice(lastTypeChangeI, i), type: type })
 
@@ -153,6 +161,7 @@ class OutPut extends Component {
                 }
             }
         }
+        // console.log(chuncks);
         return (
             <View style={s.wrapper}> 
             

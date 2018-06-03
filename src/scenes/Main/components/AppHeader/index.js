@@ -35,10 +35,6 @@ class AppHeader extends PureComponent {
                     </Title>
                 </Left>
                 <Right>
-                    <IconCollider 
-                        underlayColor={"transparent"}>
-                        <Icon color={"white"} name="md-more" />
-                    </IconCollider>
                 </Right>
             </MyHeader>
         )
