@@ -138,14 +138,10 @@ class OutPut extends Component {
             let symbol = value[i];
             let code =  symbol.charCodeAt(0).toString(16).toUpperCase();
             //finish up the last
-            if (i == value.length - 1) {
-                chuncks.push({ value: value.slice(lastTypeChangeI, i + 1), type: type});
-                break;
-            }
-
+        
             if (type == scriptType.wing) {
                 // look for a not-wing symbol or is last
-                console.log(`${i}th, ${code}`);
+                // console.log(`${i}th, ${code}`);
                 if (!wE.hasOwnProperty(code)) {
                     chuncks.push({ value: value.slice(lastTypeChangeI, i), type: type })
 
@@ -159,6 +155,11 @@ class OutPut extends Component {
                     lastTypeChangeI = i;
                     type = scriptType.wing;
                 }
+            }
+
+            if (i == value.length - 1) {
+                chuncks.push({ value: value.slice(lastTypeChangeI, i + 1), type: type });
+                break;
             }
         }
         // console.log(chuncks);
