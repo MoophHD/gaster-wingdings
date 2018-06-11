@@ -65,7 +65,7 @@ class OutPut extends Component {
               console.log(`hex ${eW[eLetter]}`);
             let code = parseInt(eW[eLetter], 16);
             console.log(`code ${code}`)
-            let symbol = String.fromCharCode(code);
+              let symbol = String.fromCodePoint(code);
             console.log(`symbol ${symbol}`);
             translatedStr += symbol;
           } else {
@@ -85,9 +85,9 @@ class OutPut extends Component {
         let translatedStr = "";
         
         Array.prototype.forEach.call(wVal, (wLetter) => {
-            let decCode = wLetter.charCodeAt(0);
+            let decCode = wLetter.codePointAt(0);
             let hexCode = decCode.toString(16).toUpperCase();
-            // console.log(hexCode);
+            // console.log(`traslate hex code ${hexCode}`);
           if (wE.hasOwnProperty(hexCode)) {
             let letter = wE[hexCode];
             translatedStr += letter;
@@ -121,27 +121,36 @@ class OutPut extends Component {
     }
     render() {
         let { value } = this.props;
+        //filter the appendix symbol
+        for (let i = 0; i < value.length; i++) {
+            console.log(`filter ${value.codePointAt(i).toString(16)}`)
+            if (value.codePointAt(i).toString(16) == "dca7") {
+                value = value.slice(0, i) + value.slice(i + 1, value.length);
+            }
+        } 
 
         // if cyrillic
         if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
 
-        // console.log(value);
         let chuncks = [];//type: wing / eng, val
         let big = value.length > 15;
         
         //push ping-pong (wing-eng) chuncks
-        let fstCode = value[0] && value[0].charCodeAt(0).toString(16).toUpperCase();
+        // console.log(`value ${value} length ${value.length}`);
+
+
+
+        let fstCode = value[0] && value[0].codePointAt(0).toString(16).toUpperCase();
         console.log(`1st, ${fstCode}`);
         let type = wE.hasOwnProperty(fstCode) ? scriptType.wing : scriptType.eng;
         let lastTypeChangeI = 0;
         for (let i = 0; i < value.length; i++) {
             let symbol = value[i];
-            let code =  symbol.charCodeAt(0).toString(16).toUpperCase();
+            let code = symbol.codePointAt(0).toString(16).toUpperCase();
             //finish up the last
-        
+            // console.log(`${i}th, ${code}`);
             if (type == scriptType.wing) {
                 // look for a not-wing symbol or is last
-                // console.log(`${i}th, ${code}`);
                 if (!wE.hasOwnProperty(code)) {
                     chuncks.push({ value: value.slice(lastTypeChangeI, i), type: type })
 
@@ -162,7 +171,7 @@ class OutPut extends Component {
                 break;
             }
         }
-        // console.log(chuncks);
+        console.log(chuncks);
         return (
             <View style={s.wrapper}> 
             
@@ -253,4 +262,67 @@ const s = StyleSheet.create({
     }
 });
 
+
 export default OutPut;
+
+if (!String.fromCodePoint) {
+    (function () {
+        var defineProperty = (function () {
+            // IE 8 only supports `Object.defineProperty` on DOM elements
+            try {
+                var object = {};
+                var $defineProperty = Object.defineProperty;
+                var result = $defineProperty(object, object, object) && $defineProperty;
+            } catch (error) { }
+            return result;
+        }());
+        var stringFromCharCode = String.fromCharCode;
+        var floor = Math.floor;
+        var fromCodePoint = function () {
+            var MAX_SIZE = 0x4000;
+            var codeUnits = [];
+            var highSurrogate;
+            var lowSurrogate;
+            var index = -1;
+            var length = arguments.length;
+            if (!length) {
+                return '';
+            }
+            var result = '';
+            while (++index < length) {
+                var codePoint = Number(arguments[index]);
+                if (
+                    !isFinite(codePoint) ||       // `NaN`, `+Infinity`, or `-Infinity`
+                    codePoint < 0 ||              // not a valid Unicode code point
+                    codePoint > 0x10FFFF ||       // not a valid Unicode code point
+                    floor(codePoint) != codePoint // not an integer
+                ) {
+                    throw RangeError('Invalid code point: ' + codePoint);
+                }
+                if (codePoint <= 0xFFFF) { // BMP code point
+                    codeUnits.push(codePoint);
+                } else { // Astral code point; split in surrogate halves
+                    // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+                    codePoint -= 0x10000;
+                    highSurrogate = (codePoint >> 10) + 0xD800;
+                    lowSurrogate = (codePoint % 0x400) + 0xDC00;
+                    codeUnits.push(highSurrogate, lowSurrogate);
+                }
+                if (index + 1 == length || codeUnits.length > MAX_SIZE) {
+                    result += stringFromCharCode.apply(null, codeUnits);
+                    codeUnits.length = 0;
+                }
+            }
+            return result;
+        };
+        if (defineProperty) {
+            defineProperty(String, 'fromCodePoint', {
+                'value': fromCodePoint,
+                'configurable': true,
+                'writable': true
+            });
+        } else {
+            String.fromCodePoint = fromCodePoint;
+        }
+    }());
+}
