@@ -122,9 +122,10 @@ class OutPut extends Component {
     render() {
         let { value } = this.props;
         //filter the appendix symbol
+        let toFilter = ["dca7", "dd39"];
         for (let i = 0; i < value.length; i++) {
             console.log(`filter ${value.codePointAt(i).toString(16)}`)
-            if (value.codePointAt(i).toString(16) == "dca7") {
+            if (toFilter.indexOf(value.codePointAt(i).toString(16)) != -1) {
                 value = value.slice(0, i) + value.slice(i + 1, value.length);
             }
         } 
@@ -134,21 +135,17 @@ class OutPut extends Component {
 
         let chuncks = [];//type: wing / eng, val
         let big = value.length > 15;
-        
-        //push ping-pong (wing-eng) chuncks
-        // console.log(`value ${value} length ${value.length}`);
-
-
-
+        // console.log(`value ${value}`);
+        // console.log(`value length ${value.length}`);
         let fstCode = value[0] && value[0].codePointAt(0).toString(16).toUpperCase();
-        console.log(`1st, ${fstCode}`);
+        // console.log(`1st, ${fstCode}`);
         let type = wE.hasOwnProperty(fstCode) ? scriptType.wing : scriptType.eng;
         let lastTypeChangeI = 0;
         for (let i = 0; i < value.length; i++) {
             let symbol = value[i];
             let code = symbol.codePointAt(0).toString(16).toUpperCase();
             //finish up the last
-            // console.log(`${i}th, ${code}`);
+            console.log(`${i}th, ${code}`);
             if (type == scriptType.wing) {
                 // look for a not-wing symbol or is last
                 if (!wE.hasOwnProperty(code)) {
