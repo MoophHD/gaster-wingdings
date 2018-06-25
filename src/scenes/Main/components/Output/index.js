@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
-import { Content, Card, CardItem, Input, Button } from 'native-base';
+import { Card, CardItem } from 'native-base';
 import { View, 
         Clipboard, 
         Text, 
-        TextInput, 
-        ScrollView, 
         TouchableOpacity,
         StyleSheet } from 'react-native';
 import styled from 'styled-components';
 import MyText from "components/MyText";
 import PropTypes from 'prop-types';
-import { black } from 'config/colors';
-import { eW, wE, cyrillicLatin } from 'assets/legend/legend';
+import { eW, wE, cyrillicLatin, doubleSymbolTail } from 'assets/legend/legend';
 import PanWrapper from "components/PanWrapper";
 import adjustFontSize from "assets/adjustFontSize";
 const pureFontSize = 33;
@@ -120,16 +117,46 @@ class OutPut extends Component {
         if (nextProps.blurId != this.props.blurId) this.focusInput(false);
     }
     render() {
-        let { value } = this.props;
-        //filter the appendix symbol
-        let toFilter = ["dca7", "dd39"];
-        for (let i = 0; i < value.length; i++) {
-            console.log(`filter ${value.codePointAt(i).toString(16)}`)
-            if (toFilter.indexOf(value.codePointAt(i).toString(16)) != -1) {
-                value = value.slice(0, i) + value.slice(i + 1, value.length);
-            }
-        } 
+        let { value: _value } = this.props;
+        value = _value.slice();
 
+        //filter double-symbol emojis 
+
+        console.log(`unfiltered value, ${value}, ${value.length} length`);
+        for (let i = 0; i < value.length; i++) {
+            let code = value.codePointAt(i).toString(16).toUpperCase();
+            console.log(`${i}th, ${code}`);
+            //is a start of a double-symbol emoji
+            if (code.toUpperCase() == "D83D") {
+                let followingSymbol = value[i + 1];
+                let followingSymbolCode = followingSymbol.codePointAt(0).toString(16).toUpperCase();
+                if (doubleSymbolTail.hasOwnProperty(followingSymbolCode)) {
+                    let followingCodeDec = parseInt(doubleSymbolTail[followingSymbolCode], 16);
+                    let symbol = String.fromCodePoint(followingCodeDec);
+
+                    console.log(`symbol ${symbol}`);
+                    value = value.slice(0, i - 1) + symbol + value.slice(i, value.length);
+
+                    console.log(`code ${code}`)
+
+                    // console.log(`following code ${followingSymbolCode}`);
+                    // let engEquivalent = doubleSymbol[followingSymbolCode];
+                    // console.log(`old value ${value}`)
+                    // value = value.slice(0, i + 1) + wE[engEquivalent] + value.slice(i + 2, value.length);
+                    // console.log(`new value ${value}`)
+                    // i--;
+                }
+            } else if (doubleSymbolTail.hasOwnProperty(code)) {
+                //is a tail of a dsymbol emoji
+                //delete
+
+                console.log(`deleted a symbol`);
+                value = value.slice(0, i - 1) + value.slice(i, value.length);
+
+            }
+        }
+
+        console.log(`filtered value ${value}, ${value.length}`)
         // if cyrillic
         if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
 
@@ -145,7 +172,7 @@ class OutPut extends Component {
             let symbol = value[i];
             let code = symbol.codePointAt(0).toString(16).toUpperCase();
             //finish up the last
-            console.log(`${i}th, ${code}`);
+  
             if (type == scriptType.wing) {
                 // look for a not-wing symbol or is last
                 if (!wE.hasOwnProperty(code)) {
@@ -168,6 +195,7 @@ class OutPut extends Component {
                 break;
             }
         }
+        console.log(`value ${value}`)
         console.log(chuncks);
         return (
             <View style={s.wrapper}> 

@@ -1,3 +1,10 @@
+
+export const doubleSymbolTail = {
+  "DC4C": "B",
+  "DCA7": "S",
+  "DC4E": "D"
+}
+
 export const wE = {
   "264B": "a",
   "264C": "b",
@@ -27,6 +34,9 @@ export const wE = {
   "2BB9": "y",
   "2318": "z",  
   "270C":"A",
+  "DC4C": "B",
+  "1F44C": "B",
+  "F44C": "B",
   "1D831":"B",
   "1F44D":"C",
   "1F546":"U",
@@ -36,6 +46,7 @@ export const wE = {
   "1F3F3":"O",
   "26F3":"O",
    "1F4A3":"M",
+   "DCA7": "S",
    "1F4A7":"S",
    "F4A7": "S",
    "D83D":"S",
@@ -98,7 +109,7 @@ export const eW = { z: '2318',
   w: '2B25',
   y: '2BB9',
   A: '270C',
-  B: '1D83D',
+  B: '1F44C',
   C: '1F44D',
   U: '271D',
   P: '25B6',
