@@ -1,8 +1,12 @@
+export const tailTriggerCodes =["DD39", "DC4D", 'DC4C', 'DCA7', 'DC4E', "DD38", "DD37", "DD36"];
 
-export const doubleSymbolTail = {
-  "DC4C": "B",
-  "DCA7": "S",
-  "DC4E": "D"
+export const eWOneSymbol = {
+  S: "D839",
+  s: "2B27",
+  w: "2B25",
+  t: "29EB",
+  u: "25C6",
+  C: "D840",
 }
 
 export const wE = {
@@ -24,12 +28,16 @@ export const wE = {
   "1F790": "p",
   "2751": "q",
   "2752": "r",
+  "D839": "s",
   "2B27": "s",
-  "1f539": "s",
+  "1F539": "s",
   "29EB": "t",
+  "1F537": "t",
   "25C6": "u",
+  "1F536": "u",
   "2756": "v",
   "2B25": "w",
+  "1F538": "w",
   "2327": "x",
   "2BB9": "y",
   "2318": "z",  
@@ -39,6 +47,7 @@ export const wE = {
   "F44C": "B",
   "1D831":"B",
   "1F44D":"C",
+  "D840" :"C",
   "1F546":"U",
   "271D": "U",
   "1F3F1" : "P",
@@ -103,10 +112,10 @@ export const eW = { z: '2318',
   n: '25A0',
   o: '25A1',
   p: '1F790',
-  s: '1f539',
-  t: '29EB',
-  u: '25C6',
-  w: '2B25',
+  s: '1F539',
+  t: '1F537',
+  u: '1F536',
+  w: '1F538',
   y: '2BB9',
   A: '270C',
   B: '1F44C',

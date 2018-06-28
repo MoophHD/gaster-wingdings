@@ -8,7 +8,7 @@ import { View,
 import styled from 'styled-components';
 import MyText from "components/MyText";
 import PropTypes from 'prop-types';
-import { eW, wE, cyrillicLatin, doubleSymbolTail } from 'assets/legend/legend';
+import { eW, wE, cyrillicLatin, tailTriggerCodes, eWOneSymbol } from 'assets/legend/legend';
 import PanWrapper from "components/PanWrapper";
 import adjustFontSize from "assets/adjustFontSize";
 const pureFontSize = 33;
@@ -127,36 +127,29 @@ class OutPut extends Component {
             let code = value.codePointAt(i).toString(16).toUpperCase();
             console.log(`${i}th, ${code}`);
             //is a start of a double-symbol emoji
-            if (code.toUpperCase() == "D83D") {
-                let followingSymbol = value[i + 1];
-                let followingSymbolCode = followingSymbol.codePointAt(0).toString(16).toUpperCase();
-                if (doubleSymbolTail.hasOwnProperty(followingSymbolCode)) {
-                    let followingCodeDec = parseInt(doubleSymbolTail[followingSymbolCode], 16);
-                    let symbol = String.fromCodePoint(followingCodeDec);
-
-                    console.log(`symbol ${symbol}`);
-                    value = value.slice(0, i - 1) + symbol + value.slice(i, value.length);
-
-                    console.log(`code ${code}`)
-
-                    // console.log(`following code ${followingSymbolCode}`);
-                    // let engEquivalent = doubleSymbol[followingSymbolCode];
-                    // console.log(`old value ${value}`)
-                    // value = value.slice(0, i + 1) + wE[engEquivalent] + value.slice(i + 2, value.length);
-                    // console.log(`new value ${value}`)
-                    // i--;
-                }
-            } else if (doubleSymbolTail.hasOwnProperty(code)) {
-                //is a tail of a dsymbol emoji
-                //delete
-
-                console.log(`deleted a symbol`);
-                value = value.slice(0, i - 1) + value.slice(i, value.length);
-
+            if (tailTriggerCodes.indexOf(code) != -1) {
+                // replace this and previous symbol with a new one
+                console.log(`prevSymbol Code ${lastSymbolCode}`);
+                console.log(`e symbol ${wE[lastSymbolCode]}`);
+                console.log(`new wing code ${eWOneSymbol[wE[lastSymbolCode]]}`);
+                console.log(`dec code ${parseInt(eWOneSymbol[wE[lastSymbolCode]], 16)}`)
+                let replacementSymbol = String.fromCodePoint(parseInt(eWOneSymbol[wE[lastSymbolCode]], 16) );
+                console.log(`one symbol replacement ${replacementSymbol}`)
+                value = value.slice(0, i - 1) + replacementSymbol + value.slice(i + 1, value.length);
+                i--;
             }
+
+            let lastSymbolCode = code;
         }
 
-        console.log(`filtered value ${value}, ${value.length}`)
+        console.log(`filtered value ${value}, ${value.length}`);
+        // let decCode = value.codePointAt(0);
+        // console.log(`dec code ${decCode}`);
+
+        // if (decCode) {
+        //     let hexCode = decCode.toString(16);
+        //     console.log(`hex code ${hexCode}`);
+        // }
         // if cyrillic
         if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
 
