@@ -74,6 +74,7 @@ class Main extends Component {
     }
     
     handleBlur() {
+        console.log(`blur`);
         let dt = new Date().getTime() / 1000;
         
         if (dt - lastAdAnchor > BETWEEN_ADS ) {
@@ -104,6 +105,7 @@ class Main extends Component {
                             onChange={this.handleChange}/>
                             
                         <Output
+                            onTap={this.handleBlur}
                             blurId={blurId}
                             value={eng} />
                     </TranslateWrapper>

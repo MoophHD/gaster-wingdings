@@ -3,6 +3,7 @@ import { Card, CardItem } from 'native-base';
 import { View, 
         Clipboard, 
         Text, 
+        TouchableWithoutFeedback,
         TouchableOpacity,
         StyleSheet } from 'react-native';
 import styled from 'styled-components';
@@ -39,16 +40,17 @@ const Translation = styled(Text)`
     font-family: ${props => props.isEng ? "Roboto" : "Wing_new"};
 `
 class OutPut extends Component {
-    focusInput(isFocus) {
-        if (!this.input) return;
+    // focusInput(isFocus) {
+    //     console.log(`focus input`);
+    //     if (!this.input) return;
         
         
-        if (isFocus) {
-            this.input.focus();
-        } else {
-            this.input.blur();
-        }
-    }
+    //     if (isFocus) {
+    //         this.input.blur();
+    //     } else {
+    //         this.input.focus();
+    //     }
+    // }
     
     copy() {
         let eVal = this.props.value;
@@ -112,12 +114,9 @@ class OutPut extends Component {
         
         return latinVal;
     }
-    
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.blurId != this.props.blurId) this.focusInput(false);
-    }
+
     render() {
-        let { value: _value } = this.props;
+        let { value: _value, onTap } = this.props;
         value = _value.slice();
 
         //filter double-symbol emojis 
@@ -190,44 +189,44 @@ class OutPut extends Component {
         }
         console.log(`value ${value}`)
         console.log(chuncks);
+
         return (
+            <TouchableWithoutFeedback style={{ flex: 1 }} onPress={() => onTap()}>
+
             <View style={s.wrapper}> 
-            
                 <OutPutWrapper>
                     
-                <PanWrapper onPress={() => this.focusInput(true)}>
-                        <MyCard>
-                        <CardItem style={s.cardItem}>
-                            <TextWrapper>
-                                {
-                                    chuncks.map((chunck, i) => {
-                                        let { value, type } = chunck;
-                                        if (type == scriptType.wing) value = this.toEng(value);
-                                        return (
-                                            <Translation
-                                                key={`_output${i}`}
-                                                isEng={type != scriptType.eng}
-                                                editable={false}
-                                                onChange={(val) => this.handleChange(val)}
-                                                innerRef={el => { if (el) this.input = el }}
-                                                big={big}
-                                                multiline={true}
-                                                underlineColorAndroid='rgba(0,0,0,0)'
-                                                placeholder={'Where am I?'} >
+                    <MyCard>
+                    <CardItem>
+                        <TextWrapper>
+                            {
+                                chuncks.map((chunck, i) => {
+                                    let { value, type } = chunck;
+                                    if (type == scriptType.wing) value = this.toEng(value);
+                                    return (
+                                        <Translation
+                                            key={`_output${i}`}
+                                            isEng={type != scriptType.eng}
+                                            editable={false}
+                                            onChange={(val) => this.handleChange(val)}
+                                            innerRef={el => { if (el) this.input = el }}
+                                            big={big}
+                                            multiline={true}
+                                            underlineColorAndroid='rgba(0,0,0,0)'
+                                            placeholder={'Where am I?'} >
 
-                                                {value}
+                                            {value}
 
-                                            </Translation>
-                                        )
-                                    })
-                            
-                                }
-                       
-                            </TextWrapper>
-                        </CardItem>
-                        </MyCard>
+                                        </Translation>
+                                    )
+                                })
                         
-                </PanWrapper>
+                            }
+                    
+                        </TextWrapper>
+                    </CardItem>
+                    </MyCard>
+                        
                     </OutPutWrapper>
                   
                 <TouchableOpacity onPress={() => this.copy()}>
@@ -238,13 +237,14 @@ class OutPut extends Component {
                     </View> 
                 </TouchableOpacity>
             </View>
+            </TouchableWithoutFeedback>
         )
     }
 }
 OutPut.propTypes = {
     value: PropTypes.string,
     wingValue: PropTypes.string,
-    blurId: PropTypes.number
+    onTap: PropTypes.func
 }
 
 
