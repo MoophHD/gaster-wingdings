@@ -40,40 +40,57 @@ const Translation = styled(Text)`
     font-family: ${props => props.isEng ? "Roboto" : "Wing_new"};
 `
 class OutPut extends Component {
-    // focusInput(isFocus) {
-    //     console.log(`focus input`);
-    //     if (!this.input) return;
-        
-        
-    //     if (isFocus) {
-    //         this.input.blur();
-    //     } else {
-    //         this.input.focus();
-    //     }
-    // }
-    
     copy() {
-        let eVal = this.props.value;
-        if (/[а-яА-ЯЁё]/.test(eVal)) eVal = this.convertCyrillic(eVal);
+        let val = this._lastFilteredValue ? this._lastFilteredValue : this.props.value;
+        let reversedValue = "";
+        // console.log(`value ${val}, val length ${val.length}`);
+        // convert cyrillic to latin script
+        if (/[а-яА-ЯЁё]/.test(val)) val = this.convertCyrillic(val);
 
-        let translatedStr = "";
+        // reverse translation
+        for (let i = 0; i < val.length; i++) {
+            let symbol = val[i];
+            let decCode = symbol.codePointAt(0);
+            let hexCode = decCode.toString(16).toUpperCase();
+            
+            // console.log(`hex code ${hexCode}`);
+            // is an english letter
+            if (eW.hasOwnProperty(symbol)) {
+                // console.log(`found an english letter`);
+                let wingHex = eW[symbol];
+                let wingDec = parseInt(wingHex, 16);
+
+                let wingSymbol = String.fromCodePoint(wingDec);
+                reversedValue += wingSymbol;
+
+            // is a wing symbol
+            } else if (wE.hasOwnProperty(hexCode)) {
+                // console.log(`found a wingding`);
+                reversedValue += wE[hexCode];
+
+            // is a number, unknown sign etc.
+            } else {
+                // console.log('leaving it alone');
+                reversedValue += symbol;
+            }
+        }
+        // Array.prototype.forEach.call(val, (letter) => {
+        //   if (eW.hasOwnProperty(letter)) {
+        //     let code = parseInt(eW[letter], 16);
+        //     let symbol = String.fromCodePoint(code);
+        //     translatedStr += symbol;
+        //   } else if (wE.hasOwnProperty(letter)) {
+        //       let decCode = letter.codePointAt(0);
+        //       let hexCode = decCode.toString(16);
+
+        //       console.log(`letter ${letter}`);
+        //       console.log(`dec ${decCode}, hex ${hexCode}`);
+        //   } else {
+        //       translatedStr += letter;
+        //   }
+        // });
         
-        // Convert hex codes into symbols if they are in the eW dictionary
-        Array.prototype.forEach.call(eVal, (eLetter) => {
-          if (eW.hasOwnProperty(eLetter)) {
-              console.log(`hex ${eW[eLetter]}`);
-            let code = parseInt(eW[eLetter], 16);
-            console.log(`code ${code}`)
-              let symbol = String.fromCodePoint(code);
-            console.log(`symbol ${symbol}`);
-            translatedStr += symbol;
-          } else {
-              translatedStr += eLetter;
-          }
-        });
-        
-        
-        Clipboard.setString(translatedStr);
+        Clipboard.setString(reversedValue);
     }
     
     handleChange(val) {
@@ -121,19 +138,14 @@ class OutPut extends Component {
 
         //filter double-symbol emojis 
 
-        console.log(`unfiltered value, ${value}, ${value.length} length`);
         for (let i = 0; i < value.length; i++) {
             let code = value.codePointAt(i).toString(16).toUpperCase();
-            console.log(`${i}th, ${code}`);
+
+            console.log(`${i}th, ${value[i]}, hex ${code}`)
             //is a start of a double-symbol emoji
             if (tailTriggerCodes.indexOf(code) != -1) {
                 // replace this and previous symbol with a new one
-                console.log(`prevSymbol Code ${lastSymbolCode}`);
-                console.log(`e symbol ${wE[lastSymbolCode]}`);
-                console.log(`new wing code ${eWOneSymbol[wE[lastSymbolCode]]}`);
-                console.log(`dec code ${parseInt(eWOneSymbol[wE[lastSymbolCode]], 16)}`)
                 let replacementSymbol = String.fromCodePoint(parseInt(eWOneSymbol[wE[lastSymbolCode]], 16) );
-                console.log(`one symbol replacement ${replacementSymbol}`)
                 value = value.slice(0, i - 1) + replacementSymbol + value.slice(i + 1, value.length);
                 i--;
             }
@@ -141,26 +153,16 @@ class OutPut extends Component {
             let lastSymbolCode = code;
         }
 
-        console.log(`filtered value ${value}, ${value.length}`);
-        // let decCode = value.codePointAt(0);
-        // console.log(`dec code ${decCode}`);
+        this._lastFilteredValue = value;
 
-        // if (decCode) {
-        //     let hexCode = decCode.toString(16);
-        //     console.log(`hex code ${hexCode}`);
-        // }
-        // if cyrillic
         if (/[а-яА-ЯЁё]/.test(value)) value = this.convertCyrillic(value);
 
         let chuncks = [];//type: wing / eng, val
         let big = value.length > 15;
-        // console.log(`value ${value}`);
-        // console.log(`value length ${value.length}`);
         let fstCode = value[0] && value[0].codePointAt(0).toString(16).toUpperCase();
-        // console.log(`1st, ${fstCode}`);
         let type = wE.hasOwnProperty(fstCode) ? scriptType.wing : scriptType.eng;
         let lastTypeChangeI = 0;
-        for (let i = 0; i < value.length; i++) {
+        for (let  i = 0; i < value.length; i++) {
             let symbol = value[i];
             let code = symbol.codePointAt(0).toString(16).toUpperCase();
             //finish up the last
@@ -187,9 +189,6 @@ class OutPut extends Component {
                 break;
             }
         }
-        console.log(`value ${value}`)
-        console.log(chuncks);
-
         return (
             <TouchableWithoutFeedback style={{ flex: 1 }} onPress={() => onTap()}>
 
@@ -247,19 +246,6 @@ OutPut.propTypes = {
     onTap: PropTypes.func
 }
 
-
-//     < Translation
-// editable = { false}
-// onChange = {(val) => this.handleChange(val)}
-// innerRef = { el => { if (el) this.input = el } }
-// big = { big }
-// multiline = { true}
-// underlineColorAndroid = 'rgba(0,0,0,0)'
-// placeholder = { 'Where am I?'} >
-
-//     { value }
-
-//                                     </Translation >
 const s = StyleSheet.create({
     wrapper: {
         padding: 10,
