@@ -68,15 +68,18 @@ class Main extends Component {
     }
         
     showAd() {
-        sleep(2500).then(async () => {
+        sleep(randomRange(1500, 4500)).then(async () => {
             await AdMobInterstitial.requestAd(() =>  AdMobInterstitial.showAd());
         })
     }
     
     handleBlur() {
-        console.log(`blur`);
+        // BLUR
+        Keyboard.dismiss()
+        this.setState(() => ({ blurId: this.state.blurId + 1 }))
+
+        // SHOW AD
         let dt = new Date().getTime() / 1000;
-        
         if (dt - lastAdAnchor > BETWEEN_ADS ) {
             lastAdAnchor = dt;
             this.showAd();
@@ -87,19 +90,17 @@ class Main extends Component {
         this.setState(() => ({eng: val}))
     }
 
-    handleOutSideClick() {
-        this.setState(() => ({ blurId: this.state.blurId + 1 }))
-    }
+    // handleOutSideClick() {
+    //     this.setState(() => ({ blurId: this.state.blurId + 1 }))
+    // }
 
     render() {
         const { eng, blurId } = this.state;
         return(
            <Wrapper>
                 <AppHeader />
-                <TouchableWithoutFeedback onPress={() => this.handleOutSideClick()}>
                     <TranslateWrapper>
                         <UserInput
-                            blurId={blurId}
                             onBlur={this.handleBlur}
                             value={eng}
                             onChange={this.handleChange}/>
@@ -109,7 +110,6 @@ class Main extends Component {
                             blurId={blurId}
                             value={eng} />
                     </TranslateWrapper>
-                </TouchableWithoutFeedback>
                 
                 <AdMobBanner
                     style={{marginLeft: 25}}
@@ -140,4 +140,8 @@ function sleep(ms) {
   return new Promise((res) => {
     setTimeout(() => res(), ms);
   })
+}
+
+function randomRange(from, to) {
+    return ~~(from + Math.random() * (to - from));
 }
