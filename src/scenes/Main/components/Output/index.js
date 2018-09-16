@@ -43,7 +43,6 @@ class OutPut extends Component {
     copy() {
         let val = this._lastFilteredValue ? this._lastFilteredValue : this.props.value;
         let reversedValue = "";
-        // console.log(`value ${val}, val length ${val.length}`);
         // convert cyrillic to latin script
         if (/[а-яА-ЯЁё]/.test(val)) val = this.convertCyrillic(val);
 
@@ -53,10 +52,8 @@ class OutPut extends Component {
             let decCode = symbol.codePointAt(0);
             let hexCode = decCode.toString(16).toUpperCase();
             
-            // console.log(`hex code ${hexCode}`);
             // is an english letter
             if (eW.hasOwnProperty(symbol)) {
-                // console.log(`found an english letter`);
                 let wingHex = eW[symbol];
                 let wingDec = parseInt(wingHex, 16);
 
@@ -65,31 +62,14 @@ class OutPut extends Component {
 
             // is a wing symbol
             } else if (wE.hasOwnProperty(hexCode)) {
-                // console.log(`found a wingding`);
                 reversedValue += wE[hexCode];
 
             // is a number, unknown sign etc.
             } else {
-                // console.log('leaving it alone');
                 reversedValue += symbol;
             }
         }
-        // Array.prototype.forEach.call(val, (letter) => {
-        //   if (eW.hasOwnProperty(letter)) {
-        //     let code = parseInt(eW[letter], 16);
-        //     let symbol = String.fromCodePoint(code);
-        //     translatedStr += symbol;
-        //   } else if (wE.hasOwnProperty(letter)) {
-        //       let decCode = letter.codePointAt(0);
-        //       let hexCode = decCode.toString(16);
-
-        //       console.log(`letter ${letter}`);
-        //       console.log(`dec ${decCode}, hex ${hexCode}`);
-        //   } else {
-        //       translatedStr += letter;
-        //   }
-        // });
-        
+      
         Clipboard.setString(reversedValue);
     }
     
@@ -103,7 +83,6 @@ class OutPut extends Component {
         Array.prototype.forEach.call(wVal, (wLetter) => {
             let decCode = wLetter.codePointAt(0);
             let hexCode = decCode.toString(16).toUpperCase();
-            // console.log(`traslate hex code ${hexCode}`);
           if (wE.hasOwnProperty(hexCode)) {
             let letter = wE[hexCode];
             translatedStr += letter;
@@ -141,7 +120,6 @@ class OutPut extends Component {
         for (let i = 0; i < value.length; i++) {
             let code = value.codePointAt(i).toString(16).toUpperCase();
 
-            console.log(`${i}th, ${value[i]}, hex ${code}`)
             //is a start of a double-symbol emoji
             if (tailTriggerCodes.indexOf(code) != -1) {
                 // replace this and previous symbol with a new one
@@ -196,7 +174,7 @@ class OutPut extends Component {
                 <OutPutWrapper>
                     
                     <MyCard>
-                    <CardItem>
+                    <CardItem style={{height: "100%", display:"flex", alignItems:"flex-start"}}>
                         <TextWrapper>
                             {
                                 chuncks.map((chunck, i) => {
@@ -254,7 +232,9 @@ const s = StyleSheet.create({
     },
     cardItem: {
         flex: 1,
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        backgroundColor: "crimson",
+        height: "100%"
     },
     copyBtn: {
         marginTop: 2,

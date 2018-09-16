@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
-import { Body, Input, Text } from 'native-base';
-import { KeyboardAvoidingView, 
-        View, 
-        Keyboard, 
-        TouchableOpacity,
-        TouchableWithoutFeedback,
+import { Body } from 'native-base';
+import { Keyboard, 
         StyleSheet} from 'react-native';
-import { MaterialIcons } from "@expo/vector-icons";
 import styled from 'styled-components';
 import { ANDROID_STATUSBAR, AD_HEIGHT } from 'config/metrics';
 import { mainClDark } from 'config/colors';
@@ -17,7 +12,6 @@ import {
   AdMobBanner,
   AdMobInterstitial
 } from 'expo';
-import { wE, eW } from "assets/legend/legend";
 
 const Wrapper = styled.View `
     display: flex;

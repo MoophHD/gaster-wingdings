@@ -1,5 +1,4 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import Main from './src/scenes/Main';
 import { Font } from 'expo';
 
